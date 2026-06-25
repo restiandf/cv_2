@@ -1,6 +1,44 @@
+<?php
+require_once 'config/database.php';
+$conn = getConnection();
+
+// Fetch projects
+$projects = $conn->query("SELECT * FROM projects WHERE status = 'published' ORDER BY created_at DESC");
+
+// Fetch about content
+$aboutContent = [];
+$result = $conn->query("SELECT * FROM about_content ORDER BY order_num ASC");
+while ($row = $result->fetch_assoc()) {
+    $aboutContent[$row['section_name']] = $row;
+}
+
+// Fetch skills grouped by category
+$skills = [];
+$result = $conn->query("SELECT * FROM skills ORDER BY category, order_num ASC");
+while ($row = $result->fetch_assoc()) {
+    $skills[$row['category']][] = $row;
+}
+
+// Fetch contact info
+$contactInfo = [];
+$result = $conn->query("SELECT * FROM contact_info ORDER BY order_num ASC");
+while ($row = $result->fetch_assoc()) {
+    $contactInfo[$row['info_type']] = $row;
+}
+
+// Fetch social media
+$socialMedia = [];
+$result = $conn->query("SELECT * FROM social_media ORDER BY order_num ASC");
+while ($row = $result->fetch_assoc()) {
+    $socialMedia[$row['platform']] = $row;
+}
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
-
+ 
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
@@ -192,60 +230,40 @@
             <!-- BEGIN: Main Hero Card -->
             <section class="flex flex-col gap-6" data-purpose="main-exercise-card">
               <div class="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-video rounded-2xl sm:rounded-3xl overflow-hidden bg-blue-50">
-                <img alt="Coding Workspace" class="w-full h-full object-cover opacity-90" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1000&q=80" />
+                <img alt="Coding Workspace" class="w-full h-full object-cover opacity-90" src="<?php echo isset($aboutContent['hero_image']) && $aboutContent['hero_image']['image'] ? (strpos($aboutContent['hero_image']['image'], 'http') === 0 ? $aboutContent['hero_image']['image'] : 'uploads/' . $aboutContent['hero_image']['image']) : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1000&q=80'; ?>" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <!-- Card Header Overlay -->
                 <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6">
-                  <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-white mb-1 sm:mb-2 leading-tight">Restian Dwi Friwaldi</h2>
-                  <p class="text-xs sm:text-sm md:text-lg font-medium text-white/90">Front-End Developer & Graphic Designer</p>
+                  <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-white mb-1 sm:mb-2 leading-tight"><?php echo htmlspecialchars($aboutContent['hero_title']['content'] ?? 'Restian Dwi Friwaldi'); ?></h2>
+                  <p class="text-xs sm:text-sm md:text-lg font-medium text-white/90"><?php echo htmlspecialchars($aboutContent['hero_subtitle']['content'] ?? 'Front-End Developer & Graphic Designer'); ?></p>
                 </div>
               </div>
               <!-- Stats Bar / Skills -->
               <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch sm:items-center sm:justify-between gap-2 sm:gap-4" data-purpose="stats-bar">
-                <div class="flex items-center gap-2 sm:gap-3 bg-blue-50 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl sm:flex-1 sm:min-w-[140px]">
-                  <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
+                <?php 
+                $skillColors = [
+                    'Frontend' => ['bg' => 'bg-blue-50', 'icon' => 'bg-blue-100', 'text' => 'text-blue-600'],
+                    'Backend' => ['bg' => 'bg-purple-50', 'icon' => 'bg-purple-100', 'text' => 'text-purple-600'],
+                    'Database' => ['bg' => 'bg-indigo-50', 'icon' => 'bg-indigo-100', 'text' => 'text-indigo-600'],
+                    'Tools' => ['bg' => 'bg-pink-50', 'icon' => 'bg-pink-100', 'text' => 'text-pink-600']
+                ];
+                $counter = 0;
+                foreach ($skills as $category => $categorySkills): 
+                    $colors = $skillColors[$category] ?? ['bg' => 'bg-gray-50', 'icon' => 'bg-gray-100', 'text' => 'text-gray-600'];
+                    if ($counter >= 4) break;
+                ?>
+                <div class="flex items-center gap-2 sm:gap-3 <?php echo $colors['bg']; ?> px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl sm:flex-1 sm:min-w-[140px]">
+                  <div class="p-2 <?php echo $colors['icon']; ?> rounded-lg <?php echo $colors['text']; ?>">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                     </svg>
                   </div>
                   <div>
-                    <p class="text-xs font-bold text-kp-text-dark">HTML, CSS, JS</p>
-                    <p class="text-[10px] text-kp-text-light uppercase tracking-wider">Frontend</p>
+                    <p class="text-xs font-bold text-kp-text-dark"><?php echo htmlspecialchars($category); ?></p>
+                    <p class="text-[10px] text-kp-text-light uppercase tracking-wider"><?php echo count($categorySkills); ?> Skills</p>
                   </div>
                 </div>
-                <div class="flex items-center gap-2 sm:gap-3 bg-indigo-50 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl sm:flex-1 sm:min-w-[140px]">
-                  <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="text-xs font-bold text-kp-text-dark">Tailwind CSS</p>
-                    <p class="text-[10px] text-kp-text-light uppercase tracking-wider">Styling</p>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2 sm:gap-3 bg-purple-50 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl sm:flex-1 sm:min-w-[140px]">
-                  <div class="p-2 bg-purple-100 rounded-lg text-purple-600">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="text-xs font-bold text-kp-text-dark">PHP & MySQL</p>
-                    <p class="text-[10px] text-kp-text-light uppercase tracking-wider">Backend</p>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2 sm:gap-3 bg-pink-50 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl sm:flex-1 sm:min-w-[140px]">
-                  <div class="p-2 bg-pink-100 rounded-lg text-pink-600">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="text-xs font-bold text-kp-text-dark">Flutter</p>
-                    <p class="text-[10px] text-kp-text-light uppercase tracking-wider">Mobile App</p>
-                  </div>
-                </div>
+                <?php $counter++; endforeach; ?>
               </div>
             </section>
             <!-- END: Main Hero Card -->
@@ -258,15 +276,15 @@
                   <div class="w-8 h-8 rounded-full bg-kp-text-dark text-white flex items-center justify-center shrink-0 text-xs font-bold">👤</div>
                   <div>
                     <h4 class="font-bold text-kp-text-dark mb-1">About Me</h4>
-                    <p class="text-sm text-kp-text-light leading-relaxed">I am an enthusiastic web developer and graphic designer located in Serang, Banten, Indonesia. I am constantly exploring new programming languages and actively improving my skills in web and mobile development, UI/UX, and data science.</p>
+                    <p class="text-sm text-kp-text-light leading-relaxed"><?php echo htmlspecialchars($aboutContent['hero_description']['content'] ?? ''); ?></p>
                   </div>
                 </div>
                 <div class="flex gap-3 sm:gap-4 border-l-2 border-gray-100 ml-3 sm:ml-4 pl-3 sm:pl-4 pb-2 sm:pb-4">
                   <div class="flex flex-col gap-1">
                     <h4 class="font-bold text-kp-text-dark mb-1">Education & Certifications</h4>
-                    <p class="text-sm text-kp-text-light leading-relaxed mb-2">🎓 Bachelor of Informatics – Yogyakarta Technology University</p>
-                    <p class="text-sm text-kp-text-light leading-relaxed mb-2">🏆 Finalist LKS SMK 2020 - Cybersecurity</p>
-                    <p class="text-sm text-kp-text-light leading-relaxed">📜 RapidMiner Data Engineering Professional & freeCodeCamp Responsive Web Design Certified.</p>
+                    <p class="text-sm text-kp-text-light leading-relaxed mb-2"><?php echo htmlspecialchars($aboutContent['education']['content'] ?? ''); ?></p>
+                    <p class="text-sm text-kp-text-light leading-relaxed mb-2"><?php echo htmlspecialchars($aboutContent['certification_1']['content'] ?? ''); ?></p>
+                    <p class="text-sm text-kp-text-light leading-relaxed"><?php echo htmlspecialchars($aboutContent['certification_2']['content'] ?? ''); ?></p>
                   </div>
                 </div>
               </div>
@@ -278,65 +296,26 @@
           <div id="projects-section" class="section-panel flex flex-col gap-6 sm:gap-8 no-scrollbar min-h-0 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
             <div class="">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                <!-- Project 1 -->
+                <?php while ($project = $projects->fetch_assoc()): ?>
                 <div class="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md hover:shadow-md transition-all">
-                  <img alt="Wonderland" class="w-full h-32 rounded-xl object-cover mb-3" src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=200&fit=crop" />
-                  <h4 class="font-bold text-kp-text-dark mb-2">Wonderland</h4>
-                  <p class="text-xs text-kp-text-light mb-3">A beautiful tourism website built with ReactJS and Tailwind CSS featuring modern UI/UX design.</p>
+                  <img alt="<?php echo htmlspecialchars($project['title']); ?>" class="w-full h-32 rounded-xl object-cover mb-3" src="<?php echo $project['image'] ? (strpos($project['image'], 'http') === 0 ? $project['image'] : 'uploads/' . $project['image']) : 'https://via.placeholder.com/300x200'; ?>" />
+                  <h4 class="font-bold text-kp-text-dark mb-2"><?php echo htmlspecialchars($project['title']); ?></h4>
+                  <p class="text-xs text-kp-text-light mb-3"><?php echo htmlspecialchars($project['description']); ?></p>
                   <div class="flex gap-2 mb-3">
-                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] rounded-full">ReactJS</span>
-                    <span class="px-2 py-1 bg-teal-50 text-teal-600 text-[10px] rounded-full">Tailwind</span>
+                    <?php 
+                    $techs = explode(',', $project['technologies']);
+                    foreach ($techs as $tech): 
+                    ?>
+                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] rounded-full"><?php echo htmlspecialchars(trim($tech)); ?></span>
+                    <?php endforeach; ?>
                   </div>
-                  <a href="https://restiandf.my.id/pariwisata/" target="_blank" class="text-kp-orange text-xs font-medium hover:underline transition-all">View Project →</a>
-                </div>
-
-                <!-- Project 2 -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md hover:shadow-md transition-all">
-                  <img alt="Teras Online" class="w-full h-32 rounded-xl object-cover mb-3" src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=300&h=200&fit=crop" />
-                  <h4 class="font-bold text-kp-text-dark mb-2">Teras Online</h4>
-                  <p class="text-xs text-kp-text-light mb-3">E-commerce platform with secure payment integration and inventory management system.</p>
-                  <div class="flex gap-2 mb-3">
-                    <span class="px-2 py-1 bg-purple-50 text-purple-600 text-[10px] rounded-full">PHP</span>
-                    <span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] rounded-full">MySQL</span>
-                  </div>
-                  <a href="https://ubeltech.rf.gd/Ecommerce/" target="_blank" class="text-kp-orange text-xs font-medium hover:underline transition-all">View Project →</a>
-                </div>
-
-                <!-- Project 3 -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md hover:shadow-md transition-all">
-                  <img alt="Weather Forecast" class="w-full h-32 rounded-xl object-cover mb-3" src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=300&h=200&fit=crop" />
-                  <h4 class="font-bold text-kp-text-dark mb-2">Weather Forecast</h4>
-                  <p class="text-xs text-kp-text-light mb-3">Real-time weather application with location-based forecasts using external APIs.</p>
-                  <div class="flex gap-2 mb-3">
-                    <span class="px-2 py-1 bg-yellow-50 text-yellow-600 text-[10px] rounded-full">JavaScript</span>
-                    <span class="px-2 py-1 bg-red-50 text-red-600 text-[10px] rounded-full">APIs</span>
-                  </div>
-                  <a href="https://prediksi-cuaca.vercel.app/" target="_blank" class="text-kp-orange text-xs font-medium hover:underline transition-all">View Project →</a>
-                </div>
-
-                <!-- Project 4 -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md hover:shadow-md transition-all">
-                  <img alt="AI Chatbot" class="w-full h-32 rounded-xl object-cover mb-3" src="https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=300&h=200&fit=crop" />
-                  <h4 class="font-bold text-kp-text-dark mb-2">AI Chatbot</h4>
-                  <p class="text-xs text-kp-text-light mb-3">Intelligent chatbot powered by OpenRouter API with natural language processing capabilities.</p>
-                  <div class="flex gap-2 mb-3">
-                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] rounded-full">OpenRouter</span>
-                    <span class="px-2 py-1 bg-purple-50 text-purple-600 text-[10px] rounded-full">PHP</span>
-                  </div>
+                  <?php if ($project['project_url']): ?>
+                  <a href="<?php echo htmlspecialchars($project['project_url']); ?>" target="_blank" class="text-kp-orange text-xs font-medium hover:underline transition-all">View Project →</a>
+                  <?php else: ?>
                   <span class="text-gray-400 text-xs">Coming Soon</span>
+                  <?php endif; ?>
                 </div>
-
-                <!-- Project 5 -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md hover:shadow-md transition-all">
-                  <img alt="Artisan Coffee" class="w-full h-32 rounded-xl object-cover mb-3" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=200&fit=crop" />
-                  <h4 class="font-bold text-kp-text-dark mb-2">Artisan Coffee</h4>
-                  <p class="text-xs text-kp-text-light mb-3">Modern coffee shop website with online ordering and reservation system.</p>
-                  <div class="flex gap-2 mb-3">
-                    <span class="px-2 py-1 bg-orange-50 text-orange-600 text-[10px] rounded-full">HTML5</span>
-                    <span class="px-2 py-1 bg-yellow-50 text-yellow-600 text-[10px] rounded-full">JavaScript</span>
-                  </div>
-                  <a href="https://coffe-lake.vercel.app/" target="_blank" class="text-kp-orange text-xs font-medium hover:underline transition-all">View Project →</a>
-                </div>
+                <?php endwhile; ?>
               </div>
             </div>
           </div>
@@ -347,6 +326,7 @@
               <h3 class="text-lg sm:text-xl font-bold text-kp-text-dark mb-4 sm:mb-6">Get In Touch</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
+                  <?php if (isset($contactInfo['email'])): ?>
                   <div class="flex items-start gap-3">
                     <div class="w-10 h-10 bg-kp-orange/10 rounded-full flex items-center justify-center shrink-0">
                       <svg class="w-5 h-5 text-kp-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,11 +334,13 @@
                       </svg>
                     </div>
                     <div>
-                      <p class="text-xs text-kp-text-light mb-1">Email</p>
-                      <a href="mailto:restiandf@gmail.com" class="text-sm text-kp-text-dark hover:text-kp-orange transition-colors">restiandf@gmail.com</a>
+                      <p class="text-xs text-kp-text-light mb-1"><?php echo htmlspecialchars($contactInfo['email']['label'] ?? 'Email'); ?></p>
+                      <a href="mailto:<?php echo htmlspecialchars($contactInfo['email']['value']); ?>" class="text-sm text-kp-text-dark hover:text-kp-orange transition-colors"><?php echo htmlspecialchars($contactInfo['email']['value']); ?></a>
                     </div>
                   </div>
+                  <?php endif; ?>
 
+                  <?php if (isset($contactInfo['phone'])): ?>
                   <div class="flex items-start gap-3">
                     <div class="w-10 h-10 bg-kp-orange/10 rounded-full flex items-center justify-center shrink-0">
                       <svg class="w-5 h-5 text-kp-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,11 +348,13 @@
                       </svg>
                     </div>
                     <div>
-                      <p class="text-xs text-kp-text-light mb-1">Phone</p>
-                      <a href="tel:+6281234567890" class="text-sm text-kp-text-dark hover:text-kp-orange">+62 812-3456-7890</a>
+                      <p class="text-xs text-kp-text-light mb-1"><?php echo htmlspecialchars($contactInfo['phone']['label'] ?? 'Phone'); ?></p>
+                      <a href="tel:<?php echo htmlspecialchars($contactInfo['phone']['value']); ?>" class="text-sm text-kp-text-dark hover:text-kp-orange"><?php echo htmlspecialchars($contactInfo['phone']['value']); ?></a>
                     </div>
                   </div>
+                  <?php endif; ?>
 
+                  <?php if (isset($contactInfo['location'])): ?>
                   <div class="flex items-start gap-3">
                     <div class="w-10 h-10 bg-kp-orange/10 rounded-full flex items-center justify-center shrink-0">
                       <svg class="w-5 h-5 text-kp-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,10 +363,11 @@
                       </svg>
                     </div>
                     <div>
-                      <p class="text-xs text-kp-text-light mb-1">Location</p>
-                      <p class="text-sm text-kp-text-dark">Serang, Banten, Indonesia</p>
+                      <p class="text-xs text-kp-text-light mb-1"><?php echo htmlspecialchars($contactInfo['location']['label'] ?? 'Location'); ?></p>
+                      <p class="text-sm text-kp-text-dark"><?php echo htmlspecialchars($contactInfo['location']['value']); ?></p>
                     </div>
                   </div>
+                  <?php endif; ?>
                 </div>
 
                 <div>
@@ -403,91 +388,38 @@
         <div id="sidebar-column" class="hidden lg:flex lg:col-span-4 flex-col gap-6 sm:gap-8 overflow-visible lg:overflow-hidden bg-white rounded-3xl p-4 sm:p-6 shadow-sm h-full">
           <h3 class="text-[10px] font-bold text-kp-text-light uppercase tracking-widest mb-6">My Projects</h3>
           <div class="flex flex-col gap-3 sm:gap-4 overflow-visible lg:overflow-y-auto no-scrollbar pr-2 pb-4">
-
-            <!-- Project 1 -->
+            <?php 
+            $projects->data_seek(0);
+            while ($project = $projects->fetch_assoc()): 
+            ?>
             <div class="flex items-center gap-3 sm:gap-4 p-2 rounded-2xl hover:bg-gray-100 transition-colors">
-              <img alt="Wonderland" class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl object-cover shrink-0" src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=200&fit=crop" />
+              <img alt="<?php echo htmlspecialchars($project['title']); ?>" class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl object-cover shrink-0" src="<?php echo $project['image'] ? (strpos($project['image'], 'http') === 0 ? $project['image'] : 'uploads/' . $project['image']) : 'https://via.placeholder.com/300x200'; ?>" />
               <div class="flex-1">
-                <h4 class="text-xs font-bold text-kp-text-dark">Wonderland</h4>
+                <h4 class="text-xs font-bold text-kp-text-dark"><?php echo htmlspecialchars($project['title']); ?></h4>
                 <div class="flex gap-3 mt-1 flex-wrap">
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-400"></span> ReactJS</span>
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-teal-400"></span> Tailwind</span>
+                  <?php 
+                  $techs = explode(',', $project['technologies']);
+                  foreach (array_slice($techs, 0, 2) as $tech): 
+                  ?>
+                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-400"></span> <?php echo htmlspecialchars(trim($tech)); ?></span>
+                  <?php endforeach; ?>
                 </div>
               </div>
-              <a href="https://restiandf.my.id/pariwisata/" target="_blank" class="w-8 h-8 border-2 border-kp-orange text-kp-orange hover:bg-kp-orange hover:text-white rounded-full flex items-center justify-center transition-colors shrink-0">
+              <?php if ($project['project_url']): ?>
+              <a href="<?php echo htmlspecialchars($project['project_url']); ?>" target="_blank" class="w-8 h-8 border-2 border-kp-orange text-kp-orange hover:bg-kp-orange hover:text-white rounded-full flex items-center justify-center transition-colors shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                 </svg>
               </a>
-            </div>
-
-            <!-- Project 2 -->
-            <div class="flex items-center gap-3 sm:gap-4 p-2 rounded-2xl hover:bg-gray-100 transition-colors">
-              <img alt="Teras Online" class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl object-cover shrink-0" src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=300&h=200&fit=crop" />
-              <div class="flex-1">
-                <h4 class="text-xs font-bold text-kp-text-dark">Teras Online</h4>
-                <div class="flex gap-3 mt-1 flex-wrap">
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-400"></span> PHP</span>
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-400"></span> MySQL</span>
-                </div>
-              </div>
-              <a href="https://ubeltech.rf.gd/Ecommerce/" target="_blank" class="w-8 h-8 border-2 border-kp-orange text-kp-orange hover:bg-kp-orange hover:text-white rounded-full flex items-center justify-center transition-colors shrink-0">
+              <?php else: ?>
+              <span class="w-8 h-8 border-2 border-gray-300 text-gray-300 rounded-full flex items-center justify-center cursor-not-allowed shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                 </svg>
-              </a>
+              </span>
+              <?php endif; ?>
             </div>
-
-            <!-- Project 3 -->
-            <div class="flex items-center gap-3 sm:gap-4 p-2 rounded-2xl hover:bg-gray-100 transition-colors">
-              <img alt="Weather Forecast" class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl object-cover shrink-0" src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=300&h=200&fit=crop" />
-              <div class="flex-1">
-                <h4 class="text-xs font-bold text-kp-text-dark">Weather Forecast</h4>
-                <div class="flex gap-3 mt-1 flex-wrap">
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-400"></span> JS</span>
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-400"></span> APIs</span>
-                </div>
-              </div>
-              <a href="https://prediksi-cuaca.vercel.app/" target="_blank" class="w-8 h-8 border-2 border-kp-orange text-kp-orange hover:bg-kp-orange hover:text-white rounded-full flex items-center justify-center transition-colors shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                </svg>
-              </a>
-            </div>
-
-            <!-- Project 4 -->
-            <div class="flex items-center gap-3 sm:gap-4 p-2 rounded-2xl hover:bg-gray-100 transition-colors">
-              <img alt="AI Chatbot" class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl object-cover shrink-0" src="https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=300&h=200&fit=crop" />
-              <div class="flex-1">
-                <h4 class="text-xs font-bold text-kp-text-dark">AI Chatbot</h4>
-                <div class="flex gap-3 mt-1 flex-wrap">
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-600"></span> OpenRouter</span>
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-400"></span> PHP</span>
-                </div>
-              </div>
-              <a href="#" class="w-8 h-8 border-2 border-gray-300 text-gray-300 rounded-full flex items-center justify-center cursor-not-allowed shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                </svg>
-              </a>
-            </div>
-
-            <!-- Project 5 -->
-            <div class="flex items-center gap-3 sm:gap-4 p-2 rounded-2xl hover:bg-gray-100 transition-colors">
-              <img alt="Artisan Coffee" class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl object-cover shrink-0" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=200&fit=crop" />
-              <div class="flex-1">
-                <h4 class="text-xs font-bold text-kp-text-dark">Artisan Coffee</h4>
-                <div class="flex gap-3 mt-1 flex-wrap">
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-400"></span> HTML5</span>
-                  <span class="text-[10px] text-kp-text-light flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-400"></span> JS</span>
-                </div>
-              </div>
-              <a href="https://coffe-lake.vercel.app/" target="_blank" class="w-8 h-8 border-2 border-kp-orange text-kp-orange hover:bg-kp-orange hover:text-white rounded-full flex items-center justify-center transition-colors shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                </svg>
-              </a>
-            </div>
+            <?php endwhile; ?>
           </div>
           <!-- END: Exercise List -->
 
@@ -500,7 +432,7 @@
                 </div>
                 <div>
                   <h4 class="text-xs font-extrabold text-kp-text-dark uppercase tracking-wide">Get In Touch</h4>
-                  <p class="text-[10px] text-kp-text-light">SERANG, BANTEN</p>
+                  <p class="text-[10px] text-kp-text-light"><?php echo htmlspecialchars($contactInfo['location']['value'] ?? 'SERANG, BANTEN'); ?></p>
                 </div>
               </div>
             </div>
@@ -509,28 +441,36 @@
               <div>
                 <h5 class="text-[10px] font-bold text-kp-text-light uppercase tracking-widest mb-3">Connect With Me</h5>
                 <div class="flex gap-3">
-                  <a href="https://github.com/restiandf" target="_blank" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-700 hover:text-black transition-colors shadow-sm">
+                  <?php if (isset($socialMedia['github'])): ?>
+                  <a href="<?php echo htmlspecialchars($socialMedia['github']['url']); ?>" target="_blank" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-700 hover:text-black transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
                     </svg>
                   </a>
-                  <a href="https://linkedin.com/in/restiandf" target="_blank" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-600 hover:text-blue-800 transition-colors shadow-sm">
+                  <?php endif; ?>
+                  <?php if (isset($socialMedia['linkedin'])): ?>
+                  <a href="<?php echo htmlspecialchars($socialMedia['linkedin']['url']); ?>" target="_blank" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-600 hover:text-blue-800 transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                     </svg>
                   </a>
-                  <a href="https://twitter.com/restiandf" target="_blank" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-400 hover:text-blue-600 transition-colors shadow-sm">
+                  <?php endif; ?>
+                  <?php if (isset($socialMedia['twitter'])): ?>
+                  <a href="<?php echo htmlspecialchars($socialMedia['twitter']['url']); ?>" target="_blank" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-400 hover:text-blue-600 transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                     </svg>
                   </a>
+                  <?php endif; ?>
                 </div>
               </div>
-              <a href="mailto:restiandf@gmail.com" class="w-10 h-10 bg-kp-orange text-white rounded-xl flex items-center justify-center shadow-lg shadow-kp-orange/30 hover:bg-orange-600 transition-colors shrink-0 ml-4">
+              <?php if (isset($contactInfo['email'])): ?>
+              <a href="mailto:<?php echo htmlspecialchars($contactInfo['email']['value']); ?>" class="w-10 h-10 bg-kp-orange text-white rounded-xl flex items-center justify-center shadow-lg shadow-kp-orange/30 hover:bg-orange-600 transition-colors shrink-0 ml-4">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                 </svg>
               </a>
+              <?php endif; ?>
             </div>
           </div>
           <!-- END: User Stats/Social Card -->
