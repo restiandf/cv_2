@@ -275,9 +275,9 @@
           </div>
 
           <!-- Projects Section -->
-          <div id="projects-section" class="section-panel flex flex-col gap-6 sm:gap-8 no-scrollbar min-h-0">
+          <div id="projects-section" class="section-panel flex flex-col gap-6 sm:gap-8 no-scrollbar min-h-0 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
             <div class="">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <!-- Project 1 -->
                 <div class="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md hover:shadow-md transition-all">
                   <img alt="Wonderland" class="w-full h-32 rounded-xl object-cover mb-3" src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=200&fit=crop" />
