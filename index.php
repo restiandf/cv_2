@@ -198,7 +198,7 @@ $conn->close();
   <main class="relative bg-kp-gray-bg w-full min-h-screen lg:h-full flex flex-col lg:flex-row overflow-x-hidden lg:overflow-hidden border-0">
 
     <!-- BEGIN: Side Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 lg:static w-full lg:w-20 h-auto lg:h-full flex flex-row lg:flex-col items-center justify-center lg:justify-start py-3 px-6 sm:px-10 lg:py-6 lg:px-0 lg:gap-8 order-last lg:order-first lg:bg-transparent border-t lg:border-t-0 border-gray-100 lg:border-white/50 z-30 shrink-0 safe-bottom">
+    <nav class="fixed bottom-0 left-0 right-0 lg:static w-full lg:w-20 h-auto lg:h-full flex flex-row lg:flex-col items-center justify-center lg:justify-start py-3 px-6 sm:px-10 lg:py-6 lg:px-0 lg:gap-8 order-last lg:order-first lg:bg-transparent lg:border-t lg:border-white/50 z-30 shrink-0 safe-bottom">
       <div class="hidden lg:flex justify-center items-center">
         <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
