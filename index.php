@@ -42,7 +42,34 @@ $conn->close();
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
-  <title>Restian Dwi Friwaldi - Portfolio Dashboard</title>
+  <title><?php echo htmlspecialchars($aboutContent['hero_title']['content'] ?? 'Restian Dwi Friwaldi'); ?> - Portfolio</title>
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <meta name="description" content="<?php echo htmlspecialchars($aboutContent['hero_subtitle']['content'] ?? 'Front-End Developer & Graphic Designer'); ?>. View my projects, skills, and get in touch." />
+  <meta name="keywords" content="Restian Dwi Friwaldi, Front-End Developer, Graphic Designer, Portfolio, Web Developer, <?php echo htmlspecialchars($aboutContent['hero_subtitle']['content'] ?? ''); ?>" />
+  <meta name="author" content="<?php echo htmlspecialchars($aboutContent['hero_title']['content'] ?? 'Restian Dwi Friwaldi'); ?>" />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="English" />
+  <meta name="revisit-after" content="7 days" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>" />
+  <meta property="og:title" content="<?php echo htmlspecialchars($aboutContent['hero_title']['content'] ?? 'Restian Dwi Friwaldi'); ?> - Portfolio" />
+  <meta property="og:description" content="<?php echo htmlspecialchars($aboutContent['hero_subtitle']['content'] ?? 'Front-End Developer & Graphic Designer'); ?>. View my projects, skills, and get in touch." />
+  <meta property="og:image" content="<?php echo isset($aboutContent['hero_image']) && $aboutContent['hero_image']['image'] ? (strpos($aboutContent['hero_image']['image'], 'http') === 0 ? $aboutContent['hero_image']['image'] : (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/uploads/' . $aboutContent['hero_image']['image']) : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=80'; ?>" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content="<?php echo htmlspecialchars($aboutContent['hero_title']['content'] ?? 'Restian Dwi Friwaldi'); ?> Portfolio" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>" />
+  <meta name="twitter:title" content="<?php echo htmlspecialchars($aboutContent['hero_title']['content'] ?? 'Restian Dwi Friwaldi'); ?> - Portfolio" />
+  <meta name="twitter:description" content="<?php echo htmlspecialchars($aboutContent['hero_subtitle']['content'] ?? 'Front-End Developer & Graphic Designer'); ?>. View my projects, skills, and get in touch." />
+  <meta name="twitter:image" content="<?php echo isset($aboutContent['hero_image']) && $aboutContent['hero_image']['image'] ? (strpos($aboutContent['hero_image']['image'], 'http') === 0 ? $aboutContent['hero_image']['image'] : (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/uploads/' . $aboutContent['hero_image']['image']) : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=80'; ?>" />
+
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <!-- Google Fonts: Poppins -->
@@ -198,7 +225,7 @@ $conn->close();
         </button>
       </div>
       <div class="hidden lg:block lg:mt-auto lg:mb-4">
-        <img alt="Profile" class="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop" />
+        <img alt="Profile" class="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" src="icon.png" />
       </div>
     </nav>
     <!-- END: Side Navigation -->
